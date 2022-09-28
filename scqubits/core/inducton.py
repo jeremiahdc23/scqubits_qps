@@ -291,9 +291,9 @@ class Inducton(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
         self,
         esys: Optional[Tuple[ndarray, ndarray]] = None,
         which: int = 0,
-        phi_grid: Grid1d = None,
+        n_grid: Grid1d = None,
     ) -> WaveFunction:
-        """Return the transmon wave function in phase basis. The specific index of the
+        """Return the inducton wave function in charge basis. The specific index of the
         wavefunction is `which`. `esys` can be provided, but if set to `None` then it is
         calculated on the fly.
 
@@ -304,7 +304,7 @@ class Inducton(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
             eigenvalue, eigenvector arrays as obtained from `.eigensystem()` are used
         which:
             eigenfunction index (default value = 0)
-        phi_grid:
+        n_grid:
             used for setting a custom grid for phi; if None use self._default_grid
         """
         if esys is None:
@@ -315,17 +315,17 @@ class Inducton(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
 
         n_wavefunc = self.numberbasis_wavefunction(esys, which=which)
 
-        phi_grid = phi_grid or self._default_grid
-        phi_basis_labels = phi_grid.make_linspace()
-        phi_wavefunc_amplitudes = np.empty(phi_grid.pt_count, dtype=np.complex_)
-        for k in range(phi_grid.pt_count):
-            phi_wavefunc_amplitudes[k] = (1j**which / math.sqrt(2 * np.pi)) * np.sum(
+        n_grid = n_grid or self._default_grid
+        n_basis_labels = n_grid.make_linspace()
+        n_wavefunc_amplitudes = np.empty(n_grid.pt_count, dtype=np.complex_)
+        for k in range(n_grid.pt_count):
+            n_wavefunc_amplitudes[k] = (1j**which / math.sqrt(2 * np.pi)) * np.sum(
                 n_wavefunc.amplitudes
-                * np.exp(1j * phi_basis_labels[k] * n_wavefunc.basis_labels)
+                * np.exp(1j * n_basis_labels[k] * n_wavefunc.basis_labels)
             )
         return storage.WaveFunction(
-            basis_labels=phi_basis_labels,
-            amplitudes=phi_wavefunc_amplitudes,
+            basis_labels=n_basis_labels,
+            amplitudes=n_wavefunc_amplitudes,
             energy=evals[which],
         )
 
