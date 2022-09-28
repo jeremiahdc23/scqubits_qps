@@ -403,10 +403,10 @@ class Inducton(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
         return specdata_ng_0.energy_table, np.asarray(dispersion_list)
 
 
-# — Flux-tunable Cooper pair box / transmon———————————————————————————————————————————
+# — Charge-tunable inducton ———————————————————————————————————————————
 
 
-class TunableTransmon(Transmon, serializers.Serializable, NoisySystem):
+class TunableInducton(Inducton, serializers.Serializable, NoisySystem):
     r"""Class for the flux-tunable transmon qubit. The Hamiltonian is represented in
     dense form in the number basis, :math:`H_\text{CPB}=4E_\text{C}(\hat{
     n}-n_g)^2-\frac{\mathcal{E}_\text{J}(\Phi)}{2}(|n\rangle\langle n+1|+\text{
