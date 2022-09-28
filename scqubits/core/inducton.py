@@ -405,19 +405,17 @@ class Inducton(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
 
 # — Charge-tunable inducton ———————————————————————————————————————————
 
-
+#TODO: Alter for Tunable Inducton
 class TunableInducton(Inducton, serializers.Serializable, NoisySystem):
-    r"""Class for the flux-tunable transmon qubit. The Hamiltonian is represented in
-    dense form in the number basis, :math:`H_\text{CPB}=4E_\text{C}(\hat{
-    n}-n_g)^2-\frac{\mathcal{E}_\text{J}(\Phi)}{2}(|n\rangle\langle n+1|+\text{
-    h.c.})`, Here, the effective Josephson energy is flux-tunable: :math:`\mathcal{
-    E}_J(\Phi) = E_{J,\text{max}} \sqrt{\cos^2(\pi\Phi/\Phi_0) + d^2 \sin^2(
-    \pi\Phi/\Phi_0)}` and :math:`d=(E_{J2}-E_{J1})(E_{J1}+E_{J2})` parametrizes the
-    junction asymmetry.
+    r"""Class for the charge-tunable inducton qubit. The Hamiltonian is represented in
+    dense form in the number basis, :math:`H_\text{QPS}=\frac{E_\text{L}}{2}(\hat{
+    m}-f)^2-\frac{\mathcal{E}_\text{S}(V_g)}{2}(|m\rangle\langle m+1|+\text{
+    h.c.})`, Here, the effective phase slip energy is charge-tunable: :math:`\mathcal{
+    E}_S(V_g) = 2E_{S,\text{max}} \cos{\frac{\piC_gV_g}{2e}}`
 
     Initialize with, for example::
 
-        TunableTransmon(EJmax=1.0, d=0.1, EC=2.0, flux=0.3, ng=0.2, ncut=30)
+        TunableInducton(ESmax=1.0, EL=2.0, Vg=0.3, f=0.2, mcut=30)
 
     Parameters
     ----------
