@@ -1111,3 +1111,77 @@ class QubitBaseClass1d(QubitBaseClass):
             **kwargs,
         )
         return fig_ax
+
+    def plot_wavefunction_n(
+        self,
+        which: Union[int, Iterable[int]] = 0,
+        mode: str = "real",
+        esys: Tuple[ndarray, ndarray] = None,
+        n_grid: Grid1d = None,
+        scaling: float = None,
+        **kwargs,
+    ) -> Tuple[Figure, Axes]:
+        """Plot 1d charge-basis wave function(s). Must be overwritten by
+        higher-dimensional qubits.
+
+        Parameters
+        ----------
+        which:
+            single index or tuple/list of integers indexing the wave function(s) to be
+            plotted.
+            If which is -1, all wavefunctions up to the truncation limit are plotted.
+        mode:
+            choices as specified in `constants.MODE_FUNC_DICT`
+            (default value = 'abs_sqr')
+        esys:
+            eigenvalues, eigenvectors
+        n_grid:
+            used for setting a custom grid for phi; if None use self._default_grid
+        scaling:
+            custom scaling of wave function amplitude/modulus
+        **kwargs:
+            standard plotting option (see separate documentation)
+        """
+        wavefunc_indices = process_which(which, self.truncated_dim)
+
+        if esys is None:
+            evals_count = max(wavefunc_indices) + 1
+            esys = self.eigensys(evals_count=evals_count)
+            evals, _ = esys
+        else:
+            evals, _ = esys
+
+        energies = evals[list(wavefunc_indices)]
+
+        n_grid = n_grid or self._default_grid
+        potential_vals = self.potential(n_grid.make_linspace())
+
+        amplitude_modifier = constants.MODE_FUNC_DICT[mode]
+        wavefunctions = []
+        for wavefunc_index in wavefunc_indices:
+            n_wavefunc = self.wavefunction(
+                esys, which=wavefunc_index, phi_grid=n_grid
+            )
+            n_wavefunc.amplitudes = standardize_sign(n_wavefunc.amplitudes)
+            n_wavefunc.amplitudes = amplitude_modifier(n_wavefunc.amplitudes)
+            wavefunctions.append(n_wavefunc)
+
+        fig_ax = kwargs.get("fig_ax") or plt.subplots()
+        kwargs["fig_ax"] = fig_ax
+        kwargs = {
+            **self.wavefunction1d_defaults(
+                mode, evals, wavefunc_count=len(wavefunc_indices)  # type:ignore
+            ),
+            **kwargs,
+        }
+        # in merging the dictionaries in the previous line: if any duplicates,
+        # later ones survive
+
+        plot.wavefunction1d(
+            wavefunctions,
+            potential_vals=potential_vals,  # type:ignore
+            offset=energies,
+            scaling=scaling,
+            **kwargs,
+        )
+        return fig_ax
