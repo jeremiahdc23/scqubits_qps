@@ -1160,7 +1160,7 @@ class QubitBaseClass1d(QubitBaseClass):
         wavefunctions = []
         for wavefunc_index in wavefunc_indices:
             n_wavefunc = self.wavefunction(
-                esys, which=wavefunc_index, phi_grid=n_grid
+                esys, which=wavefunc_index, n_grid=n_grid
             )
             n_wavefunc.amplitudes = standardize_sign(n_wavefunc.amplitudes)
             n_wavefunc.amplitudes = amplitude_modifier(n_wavefunc.amplitudes)
