@@ -1019,7 +1019,7 @@ class QubitBaseClass1d(QubitBaseClass):
         pass
 
     def wavefunction1d_defaults(
-        self, mode: str, evals: ndarray, wavefunc_count: int
+        self, mode: str, evals: ndarray, wavefunc_count: int, basis: int = 0
     ) -> Dict[str, Any]:
         """Plot defaults for plotting.wavefunction1d.
 
@@ -1027,16 +1027,23 @@ class QubitBaseClass1d(QubitBaseClass):
         ----------
         mode:
             amplitude modifier, needed to give the correct default y label
+        basis:
+            designate plotting in phase (0) or charge (1)
         evals:
             eigenvalues to include in plot
         wavefunc_count:
             number of wave functions to be plotted
         """
-        ylabel = r"$\psi_j(\varphi)$"
+        if basis == 0:
+            xlabel = r"$\varphi$"
+            ylabel = r"$\psi_j(\varphi)$"
+        elif basis == 1:
+            xlabel = r"$\tilde{n}$"
+            ylabel = r"$\psi_j(\tilde{n})$"
+
         ylabel = constants.MODE_STR_DICT[mode](ylabel)
         ylabel += ",  energy [{}]".format(units.get_units())
-        options = {"xlabel": r"$\varphi$", "ylabel": ylabel}
-        return options
+        return {"xlabel": xlabel, "ylabel": ylabel}
 
     def plot_wavefunction(
         self,
@@ -1096,7 +1103,7 @@ class QubitBaseClass1d(QubitBaseClass):
         kwargs["fig_ax"] = fig_ax
         kwargs = {
             **self.wavefunction1d_defaults(
-                mode, evals, wavefunc_count=len(wavefunc_indices)  # type:ignore
+                mode, evals, wavefunc_count=len(wavefunc_indices), basis=0  # type:ignore
             ),
             **kwargs,
         }
@@ -1136,7 +1143,7 @@ class QubitBaseClass1d(QubitBaseClass):
         esys:
             eigenvalues, eigenvectors
         n_grid:
-            used for setting a custom grid for phi; if None use self._default_grid
+            used for setting a custom grid for n; if None use self._default_grid
         scaling:
             custom scaling of wave function amplitude/modulus
         **kwargs:
@@ -1170,7 +1177,7 @@ class QubitBaseClass1d(QubitBaseClass):
         kwargs["fig_ax"] = fig_ax
         kwargs = {
             **self.wavefunction1d_defaults(
-                mode, evals, wavefunc_count=len(wavefunc_indices)  # type:ignore
+                mode, evals, wavefunc_count=len(wavefunc_indices), basis=1  # type:ignore
             ),
             **kwargs,
         }

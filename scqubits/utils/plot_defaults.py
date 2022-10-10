@@ -130,7 +130,10 @@ def wavefunction1d_discrete(mode: Optional[str] = None, basis: str = "n") -> Dic
     Parameters
     ----------
     mode:
-        amplitude modifier, needed to give the correct default y label"""
+        amplitude modifier, needed to give the correct default y label
+    basis:
+        designate plotting in the charge ("n") or fluxoid ("m") basis"""
+
 
     xlabel = basis
     ylabel = fr"$\psi_j({basis})$"
