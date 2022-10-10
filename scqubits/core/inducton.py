@@ -240,7 +240,7 @@ class Inducton(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
         amplitude_modifier = constants.MODE_FUNC_DICT[mode]
         m_wavefunc.amplitudes = amplitude_modifier(m_wavefunc.amplitudes)
         kwargs = {
-            **defaults.wavefunction1d_discrete(mode),
+            **defaults.wavefunction1d_discrete(mode, basis="m"),
             **kwargs,
         }  # if any duplicates, later ones survive
         return plot.wavefunction1d_discrete(m_wavefunc, xlim=mrange, **kwargs)

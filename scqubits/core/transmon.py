@@ -240,7 +240,7 @@ class Transmon(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
         amplitude_modifier = constants.MODE_FUNC_DICT[mode]
         n_wavefunc.amplitudes = amplitude_modifier(n_wavefunc.amplitudes)
         kwargs = {
-            **defaults.wavefunction1d_discrete(mode),
+            **defaults.wavefunction1d_discrete(mode, basis="n"),
             **kwargs,
         }  # if any duplicates, later ones survive
         return plot.wavefunction1d_discrete(n_wavefunc, xlim=nrange, **kwargs)

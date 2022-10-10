@@ -122,17 +122,23 @@ def set_wavefunction_scaling(
         return scale_factor
 
 
-def wavefunction1d_discrete(mode: Optional[str] = None) -> Dict[str, Any]:
+def wavefunction1d_discrete(mode: Optional[str] = None, basis: str = None) -> Dict[str, Any]:
     """Plot defaults for plotting.wavefunction1d_discrete.
 
     Parameters
     ----------
     mode:
         amplitude modifier, needed to give the correct default y label"""
-    ylabel = r"$\psi_j(n)$"
+
+    if basis:
+        xlabel = basis
+        ylabel = fr"$\psi_j({basis})$"
+    else:
+        raise Exception("Please designate a basis for plotting")
+
     if mode:
         ylabel = constants.MODE_STR_DICT[mode](ylabel)
-    return {"xlabel": "n", "ylabel": ylabel}
+    return {"xlabel": xlabel, "ylabel": ylabel}
 
 
 def wavefunction2d() -> Dict[str, Any]:
