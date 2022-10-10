@@ -88,7 +88,7 @@ class Inducton(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
         self.mcut = mcut
         self.truncated_dim = truncated_dim
         self._default_grid = discretization.Grid1d(-np.pi, np.pi, 151)
-        self._default_f_range = (-5, 6)
+        self._default_m_range = (-5, 6)
         self._image_filename = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "qubit_img/fixed-inducton.jpg"
         )
