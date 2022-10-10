@@ -407,86 +407,86 @@ class Inducton(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
 
 
 class TunableInducton(Inducton, serializers.Serializable, NoisySystem):
-    r"""Class for the flux-tunable transmon qubit. The Hamiltonian is represented in
-    dense form in the number basis, :math:`H_\text{CPB}=4E_\text{C}(\hat{
-    n}-n_g)^2-\frac{\mathcal{E}_\text{J}(\Phi)}{2}(|n\rangle\langle n+1|+\text{
-    h.c.})`, Here, the effective Josephson energy is flux-tunable: :math:`\mathcal{
-    E}_J(\Phi) = E_{J,\text{max}} \sqrt{\cos^2(\pi\Phi/\Phi_0) + d^2 \sin^2(
-    \pi\Phi/\Phi_0)}` and :math:`d=(E_{J2}-E_{J1})(E_{J1}+E_{J2})` parametrizes the
-    junction asymmetry.
+    r"""Class for the charge-tunable inducton qubit. The Hamiltonian is represented in
+    dense form in the number basis, :math:`H_\text{QPSB}=\frac{E_\text{L}}{2}(2\pi)^2(\hat{m}-f)^2-
+    \frac{E_\text{S}(V_g)}{2}(|m\rangle\langle m+1|+\text{h.c.})` ,
+    Here, the effective quantum phase slip energy is charge-tunable: :math:`\mathcal{
+    E}_S(V_g) = E_{S,\text{max}} \sqrt{\cos^2(\pi Q_g/2e) + d^2 \sin^2(
+    \pi Q_g/2e)}` where :math: `Q_g = C_gV_g` defines the charge tunable bias
+    and :math:`d=(E_{S2}-E_{S1})(E_{S1}+E_{S2})` parametrizes the phase slip junction asymmetry.
 
     Initialize with, for example::
 
-        TunableTransmon(EJmax=1.0, d=0.1, EC=2.0, flux=0.3, ng=0.2, ncut=30)
+        TunableInducton(ESmax=1.0, d=0.1, EL=2.0, Q=0.3, f=0.2, mcut=30)
 
     Parameters
     ----------
-    EJmax:
-       maximum effective Josephson energy (sum of the Josephson energies of the two
+    ESmax:
+       maximum effective quantum phase slip energy (sum of the quantum phase slip energies of the two
        junctions)
     d:
         junction asymmetry parameter
-    EC:
-        charging energy
-    flux:
-        flux threading the SQUID loop, in units of the flux quantum
-    ng:
+    EL:
+        inductive energy
+    Q:
+        gate-voltage induced charge bias, in units of the cooper pair charge
+    f:
         offset charge
-    ncut:
-        charge basis cutoff, `n = -ncut, ..., ncut`
+    mcut:
+        fluxoid basis cutoff, `m = -mcut, ..., mcut`
     truncated_dim:
         desired dimension of the truncated quantum system; expected: truncated_dim > 1
     id_str:
         optional string by which this instance can be referred to in `HilbertSpace`
         and `ParameterSweep`. If not provided, an id is auto-generated.
     """
-    EJmax = descriptors.WatchedProperty(float, "QUANTUMSYSTEM_UPDATE")
+    ESmax = descriptors.WatchedProperty(float, "QUANTUMSYSTEM_UPDATE")
     d = descriptors.WatchedProperty(float, "QUANTUMSYSTEM_UPDATE")
-    flux = descriptors.WatchedProperty(float, "QUANTUMSYSTEM_UPDATE")
+    Q = descriptors.WatchedProperty(float, "QUANTUMSYSTEM_UPDATE")
 
     def __init__(
         self,
-        EJmax: float,
-        EC: float,
+        ESmax: float,
+        EL: float,
         d: float,
-        flux: float,
-        ng: float,
-        ncut: int,
+        Q: float,
+        f: float,
+        mcut: int,
         truncated_dim: int = 6,
         id_str: Optional[str] = None,
     ) -> None:
         base.QuantumSystem.__init__(self, id_str=id_str)
-        self.EJmax = EJmax
-        self.EC = EC
+        self.ESmax = ESmax
+        self.EL = EL
         self.d = d
-        self.flux = flux
-        self.ng = ng
-        self.ncut = ncut
+        self.Q = Q
+        self.f = f
+        self.mcut = mcut
         self.truncated_dim = truncated_dim
         self._default_grid = discretization.Grid1d(-np.pi, np.pi, 151)
         self._default_m_range = (-5, 6)
         self._image_filename = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "qubit_img/tunable-transmon.jpg"
+            os.path.dirname(os.path.abspath(__file__)), "qubit_img/tunable-inducton.jpg"
         )
 
     @property
-    def EJ(self) -> float:  # type: ignore
-        """This is the effective, flux dependent Josephson energy, playing the role
-        of EJ in the parent class `Transmon`"""
-        return self.EJmax * np.sqrt(
-            np.cos(np.pi * self.flux) ** 2
-            + self.d**2 * np.sin(np.pi * self.flux) ** 2
+    def ES(self) -> float:  # type: ignore
+        """This is the effective, charge dependent quantum phase slip energy, playing the role
+        of ES in the parent class `Inducton`"""
+        return self.ESmax * np.sqrt(
+            np.cos(np.pi * self.Q) ** 2
+            + self.d**2 * np.sin(np.pi * self.Q) ** 2
         )
 
     @staticmethod
     def default_params() -> Dict[str, Any]:
         return {
-            "EJmax": 20.0,
-            "EC": 0.3,
+            "ESmax": 20.0,
+            "EL": 0.3,
             "d": 0.01,
-            "flux": 0.0,
-            "ng": 0.0,
-            "ncut": 30,
+            "Q": 0.0,
+            "f": 0.0,
+            "mcut": 30,
             "truncated_dim": 10,
         }
 
@@ -502,20 +502,20 @@ class TunableInducton(Inducton, serializers.Serializable, NoisySystem):
             "t1_charge_impedance",
         ]
 
-    def d_hamiltonian_d_flux(self) -> ndarray:
+    def d_hamiltonian_d_Q(self) -> ndarray:
         """Returns operator representing a derivative of the Hamiltonian with respect
-        to `flux`."""
+        to `charge`."""
         return (
             np.pi
-            * self.EJmax
-            * np.cos(np.pi * self.flux)
-            * np.sin(np.pi * self.flux)
+            * self.ESmax
+            * np.cos(np.pi * self.Q)
+            * np.sin(np.pi * self.Q)
             * (self.d**2 - 1)
             / np.sqrt(
-                np.cos(np.pi * self.flux) ** 2
-                + self.d**2 * np.sin(np.pi * self.flux) ** 2
+                np.cos(np.pi * self.Q) ** 2
+                + self.d**2 * np.sin(np.pi * self.Q) ** 2
             )
-            * self.cos_phi_operator()
+            * self.cos_n_operator()
         )
 
     def _compute_dispersion(
