@@ -62,7 +62,7 @@ def parse_branch_parameters(
     """
     branch_var_dict: Dict[Symbol, float] = {}
     branch_params: List[float] = []
-    num_params = 2 if branch_type in ["JJ", "JJ2"] else 1
+    num_params = 2 if branch_type in ["JJ", "JJ2", "QPS"] else 1
     for word in words[0:num_params]:
         if not is_float_string(word):
             if len(word.split("=")) > 2:
@@ -115,7 +115,7 @@ class Node:
         """
         Returns a list of all nodes directly connected by branches to the current
         node, either considering all branches or a specified `branch_type`:
-        "C", "L", "JJ", "all" for capacitive, inductive, Josephson junction,
+        "C", "L", "JJ", "QPS", "all" for capacitive, inductive, Josephson junction, QPS junction,
         or all types of branches.
         """
         result = []
@@ -156,12 +156,13 @@ class Branch:
     n_i, n_f:
         initial and final nodes connected by this branch;
     branch_type:
-        is the type of this Branch, example "C","JJ" or "L"
+        is the type of this Branch, example "C","JJ", "L" or "QPS"
     parameters:
         dictionary of parameters for the branch, namely for
         capacitance: {"EC":  <value>};
         for inductance: {"EL": <value>};
         for Josephson Junction: {"EJ": <value>, "ECJ": <value>}
+        for QPS Junction: {"ES": <value>, "ELK": <value>}
 
     Examples
     --------
@@ -209,6 +210,8 @@ class Branch:
             self.parameters = {f"E{self.type}": parameters[0]}
         elif self.type in ["JJ", "JJ2"]:
             self.parameters = {"EJ": parameters[0], "ECJ": parameters[1]}
+        elif self.type in ["QPS"]:
+            self.parameters = {"QPS": parameters[0], "ELK": parameters[1]}
 
     def node_ids(self) -> Tuple[int, int]:
         return self.nodes[0].index, self.nodes[1].index
@@ -448,7 +451,7 @@ class SymbolicCircuit(serializers.Serializable):
         # if the circuit is purely harmonic, then store the eigenfrequencies
         branch_type_list = [branch.type for branch in self.branches]
         self.is_purely_harmonic = (
-            "JJ" not in branch_type_list and "JJ2" not in branch_type_list
+            "JJ" not in branch_type_list and "JJ2" not in branch_type_list and "QPS" not in branch_type_list
         )
 
         if self.is_purely_harmonic:
@@ -593,6 +596,13 @@ class SymbolicCircuit(serializers.Serializable):
             ) != 5:
                 raise Exception(
                     "Incorrect number of parameters: specification of JJ input in "
+                    f"line: {branch_list_input}"
+                )
+            elif (branch_type == "QPS") and len(
+                branch_list_input
+            ) != 5:
+                raise Exception(
+                    "Incorrect number of parameters: specification of QPS input in "
                     f"line: {branch_list_input}"
                 )
             elif (branch_type == "L" or branch_type == "C") and len(
@@ -899,6 +909,7 @@ class SymbolicCircuit(serializers.Serializable):
             raise Exception("The transformation matrix provided is not invertible.")
 
         # find all the different types of modes present in the circuit.
+        #TODO: What are the modes associated with QPS
 
         # *************************** Finding the Periodic Modes **********************
         selected_branches = [branch for branch in self.branches if branch.type == "L"]
@@ -1247,8 +1258,13 @@ class SymbolicCircuit(serializers.Serializable):
             _description_
         """
         branches_with_inductance = [
-            branch for branch in self.branches if branch.type == "L"
+            branch for branch in self.branches if branch.type in ["L", "QPS"]
         ]
+
+        inductance_param_for_branch_type = {
+            "L": "EL",
+            "QPS": "ECK"
+        }
 
         param_init_vals_dict = self.symbolic_params
 
