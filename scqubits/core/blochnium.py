@@ -1,4 +1,4 @@
-# inducton.py
+# blochnium.py
 #
 # This file is part of scqubits: a Python package for superconducting qubits,
 # Quantum 5, 583 (2021). https://quantum-journal.org/papers/q-2021-11-17-583/
@@ -39,17 +39,17 @@ LevelsTuple = Tuple[int, ...]
 Transition = Tuple[int, int]
 TransitionsTuple = Tuple[Transition, ...]
 
-# —quantum phase slip box / inducton——————————————————————————————————————————————
+# — phase slip flux qubit / blochnium ——————————————————————————————————————————————
 
 
-class Inducton(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
-    r"""Class for the QPS Box and inducton qubit. The Hamiltonian is
+class Blochnium(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
+    r"""Class for the QPS Box and blochnium qubit. The Hamiltonian is
     represented in dense form in the fluxoid basis,
     :math:`H_\text{QPSB}=\frac{E_\text{L}}{2}(2\pi)^2(\hat{m}-f)^2-\frac{E_\text{S}}{2}(
     |m\rangle\langle m+1|+\text{h.c.})`
     Initialize with, for example::
 
-        Inducton(ES=1.0, EC=0.4, f=0.2, mcut=30)
+        Blochnium(ES=1.0, EC=0.4, f=0.2, mcut=30)
 
     Parameters
     ----------
@@ -90,7 +90,7 @@ class Inducton(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
         self._default_grid = discretization.Grid1d(-np.pi, np.pi, 151)
         self._default_m_range = (-5, 6)
         self._image_filename = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "qubit_img/fixed-inducton.jpg"
+            os.path.dirname(os.path.abspath(__file__)), "qubit_img/fixed-blochnium.jpg"
         )
 
     @staticmethod
@@ -202,7 +202,7 @@ class Inducton(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
         return 2 * self.mcut + 1
 
     def potential(self, n: Union[float, ndarray]) -> ndarray:
-        """Inducton charge-basis potential evaluated at `n`.
+        """Blochnium charge-basis potential evaluated at `n`.
 
         Parameters
         ----------
@@ -267,7 +267,7 @@ class Inducton(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
     def numberbasis_wavefunction(
         self, esys: Tuple[ndarray, ndarray] = None, which: int = 0
     ) -> WaveFunction:
-        """Return the inducton wave function in number basis. The specific index of the
+        """Return the Blochnium wave function in number basis. The specific index of the
         wave function to be returned is `which`.
 
         Parameters
@@ -293,7 +293,7 @@ class Inducton(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
         which: int = 0,
         n_grid: Grid1d = None,
     ) -> WaveFunction:
-        """Return the inducton wave function in charge basis. The specific index of the
+        """Return the Blochnium wave function in charge basis. The specific index of the
         wavefunction is `which`. `esys` can be provided, but if set to `None` then it is
         calculated on the fly.
 
@@ -403,11 +403,11 @@ class Inducton(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
         return specdata_ng_0.energy_table, np.asarray(dispersion_list)
 
 
-# — Charge-tunable inducton ———————————————————————————————————————————
+# — Charge-tunable Blochnium ———————————————————————————————————————————
 
 
-class TunableInducton(Inducton, serializers.Serializable, NoisySystem):
-    r"""Class for the charge-tunable inducton qubit. The Hamiltonian is represented in
+class TunableBlochnium(Blochnium, serializers.Serializable, NoisySystem):
+    r"""Class for the charge-tunable Blochnium qubit. The Hamiltonian is represented in
     dense form in the number basis, :math:`H_\text{QPSB}=\frac{E_\text{L}}{2}(2\pi)^2(\hat{m}-f)^2-
     \frac{E_\text{S}(V_g)}{2}(|m\rangle\langle m+1|+\text{h.c.})` ,
     Here, the effective quantum phase slip energy is charge-tunable: :math:`\mathcal{
@@ -417,7 +417,7 @@ class TunableInducton(Inducton, serializers.Serializable, NoisySystem):
 
     Initialize with, for example::
 
-        TunableInducton(ESmax=1.0, d=0.1, EL=2.0, Q=0.3, f=0.2, mcut=30)
+        TunableBlochnium(ESmax=1.0, d=0.1, EL=2.0, Q=0.3, f=0.2, mcut=30)
 
     Parameters
     ----------
@@ -466,13 +466,13 @@ class TunableInducton(Inducton, serializers.Serializable, NoisySystem):
         self._default_grid = discretization.Grid1d(-np.pi, np.pi, 151)
         self._default_m_range = (-5, 6)
         self._image_filename = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "qubit_img/tunable-inducton.jpg"
+            os.path.dirname(os.path.abspath(__file__)), "qubit_img/tunable-Blochnium.jpg"
         )
 
     @property
     def ES(self) -> float:  # type: ignore
         """This is the effective, charge dependent quantum phase slip energy, playing the role
-        of ES in the parent class `Inducton`"""
+        of ES in the parent class `Blochnium`"""
         return self.ESmax * np.sqrt(
             np.cos(np.pi * self.Q) ** 2
             + self.d**2 * np.sin(np.pi * self.Q) ** 2
