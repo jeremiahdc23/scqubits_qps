@@ -1723,6 +1723,7 @@ class SymbolicCircuit(serializers.Serializable):
         potential_φ, where θ represents the set of new variables and φ represents
         the set of node variables
         """
+
         transformation_matrix = self.transformation_matrix
 
         # defining the φ variables
