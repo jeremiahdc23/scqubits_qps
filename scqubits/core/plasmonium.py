@@ -246,7 +246,7 @@ class Plasmonium(base.QubitBaseClass1d, serializers.Serializable, NoisySystem):
         float or ndarray
         """
         return 4 * self.EC * n * n - self.ES * np.cos(
-            2.0 * np.pi (n + self.ng)
+            2.0 * np.pi * (n + self.ng)
         )
 
     def wavefunction(
